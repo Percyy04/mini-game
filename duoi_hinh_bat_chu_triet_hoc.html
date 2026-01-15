@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đuổi Hình Bắt Chữ - Triết Học Mác - Lênin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+        .image-area {
+            font-size: 80px;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            border: 2px dashed #bdc3c7;
+            min-height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: popIn 0.5s ease;
+        }
+        .input-area input {
+            padding: 12px;
+            width: 70%;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+        .btn {
+            padding: 12px 20px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #3498db;
+        }
+        .btn-hint {
+            background-color: #f39c12;
+            margin-top: 10px;
+            font-size: 14px;
+            padding: 8px 15px;
+        }
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        .success { color: #27ae60; }
+        .error { color: #c0392b; }
+        .hint-text {
+            margin-top: 10px;
+            font-style: italic;
+            color: #d35400;
+            display: none;
+        }
+        .score-board {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #555;
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Đuổi Hình Bắt... Phạm Trù</h1>
+    <p class="subtitle">Chủ đề: 6 cặp phạm trù cơ bản của Phép biện chứng duy vật</p>
+
+    <div class="score-board">Câu hỏi: <span id="currentQuestion">1</span>/6 | Điểm: <span id="score">0</span></div>
+
+    <div class="image-area" id="puzzleImage">
+        <!-- Hình ảnh/Emoji sẽ hiện ở đây -->
+    </div>
+
+    <p id="hintText" class="hint-text"></p>
+
+    <div class="input-area">
+        <input type="text" id="answerInput" placeholder="Nhập tên cặp phạm trù..." autocomplete="off">
+        <button class="btn" onclick="checkAnswer()">Kiểm tra</button>
+    </div>
+    
+    <button class="btn btn-hint" onclick="showHint()">Gợi ý 💡</button>
+
+    <div id="message" class="message"></div>
+</div>
+
+<script>
+    // Dữ liệu câu hỏi dựa trên các nguồn tài liệu đã cung cấp
+    const questions = [
+        {
+            // Cặp 1: Cái riêng và Cái chung
+            // Logic: Một quả táo (riêng) vs Rổ táo (chung)
+            id: 1,
+            image: "🍎 🆚 🧺🍎🍏", 
+            answer: ["cái riêng và cái chung", "cai rieng va cai chung", "cái riêng cái chung"],
+            hint: "Phản ánh phương thức tồn tại: Một sự vật nhất định vs Những thuộc tính lặp lại ở nhiều sự vật.",
+            explanation: "Chính xác! Cái riêng chỉ một sự vật, Cái chung là thuộc tính lặp lại."
+        },
+        {
+            // Cặp 2: Nguyên nhân và Kết quả
+            // Logic: Sét đánh (nguyên nhân) -> Cháy/Nổ (kết quả)
+            id: 2,
+            image: "⚡ ➡️ 🔥",
+            answer: ["nguyên nhân và kết quả", "nguyen nhan va ket qua", "nguyên nhân kết quả"],
+            hint: "Mối liên hệ sản sinh: Sự tương tác gây biến đổi vs Những biến đổi xuất hiện.",
+            explanation: "Đúng rồi! Nguyên nhân có trước và sinh ra Kết quả."
+        },
+        {
+            // Cặp 4: Nội dung và Hình thức
+            // Logic: Quyển sách (Nội dung bên trong) vs Bìa sách (Hình thức bên ngoài)
+            id: 3,
+            image: "📖🅰️🅱️ 🆚 📕🎨",
+            answer: ["nội dung và hình thức", "noi dung va hinh thuc", "nội dung hình thức"],
+            hint: "Tổng thể các yếu tố tạo nên sự vật vs Phương thức tồn tại của sự vật.",
+            explanation: "Chính xác! Nội dung quyết định hình thức."
+        },
+        {
+            // Cặp 6: Khả năng và Hiện thực
+            // Logic: Hạt mầm (Khả năng) -> Cây lớn (Hiện thực)
+            id: 4,
+            image: "🌱 ➡️ 🌳",
+            answer: ["khả năng và hiện thực", "kha nang va hien thuc", "khả năng hiện thực"],
+            hint: "Cái chưa có nhưng sẽ xảy ra vs Cái đang tồn tại thực sự.",
+            explanation: "Chuẩn! Khả năng sẽ biến thành hiện thực khi có đủ điều kiện."
+        },
+        {
+            // Cặp 3: Tất nhiên và Ngẫu nhiên
+            // Logic: Mặt trời mọc (Tất nhiên) vs Gieo xúc xắc (Ngẫu nhiên)
+            id: 5,
+            image: "🌅 🆚 🎲",
+            answer: ["tất nhiên và ngẫu nhiên", "tat nhien va ngau nhien", "tất nhiên ngẫu nhiên"],
+            hint: "Do nguyên nhân bên trong quy định (phải xảy ra) vs Do nguyên nhân bên ngoài (có thể không xảy ra).",
+            explanation: "Xuất sắc! Tất nhiên vạch đường đi thông qua ngẫu nhiên."
+        },
+        {
+            // Cặp 5: Bản chất và Hiện tượng
+            // Logic: Phân tử nước H2O (Bản chất) vs Cục nước đá/Hơi nước (Hiện tượng)
+            id: 6,
+            image: "🔬🧬 🆚 🧊🌫️",
+            answer: ["bản chất và hiện tượng", "ban chat va hien tuong", "bản chất hiện tượng"],
+            hint: "Sự sâu kín, ổn định bên trong vs Sự biểu hiện phong phú, hay biến đổi bên ngoài.",
+            explanation: "Tuyệt vời! Bản chất luôn bộc lộ qua hiện tượng."
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        const q = questions[currentQ];
+        document.getElementById("puzzleImage").innerHTML = q.image;
+        document.getElementById("hintText").style.display = "none";
+        document.getElementById("hintText").innerText = "Gợi ý: " + q.hint;
+        document.getElementById("message").innerText = "";
+        document.getElementById("answerInput").value = "";
+        document.getElementById("currentQuestion").innerText = currentQ + 1;
+    }
+
+    function checkAnswer() {
+        const userAns = document.getElementById("answerInput").value.toLowerCase().trim();
+        const correctAnswers = questions[currentQ].answer;
+
+        // Kiểm tra xem đáp án người dùng nhập có nằm trong danh sách đáp án đúng không
+        if (correctAnswers.includes(userAns)) {
+            document.getElementById("message").className = "message success";
+            document.getElementById("message").innerText = questions[currentQ].explanation;
+            score += 10;
+            document.getElementById("score").innerText = score;
+            
+            // Chuyển câu hỏi sau 2 giây
+            setTimeout(() => {
+                currentQ++;
+                if (currentQ < questions.length) {
+                    loadQuestion();
+                } else {
+                    endGame();
+                }
+            }, 2000);
+        } else {
+            document.getElementById("message").className = "message error";
+            document.getElementById("message").innerText = "Sai rồi! Hãy thử lại hoặc dùng gợi ý.";
+        }
+    }
+
+    function showHint() {
+        document.getElementById("hintText").style.display = "block";
+    }
+
+    function endGame() {
+        document.querySelector(".game-container").innerHTML = `
+            <h1>🎉 HOÀN THÀNH! 🎉</h1>
+            <p>Bạn đã trả lời đúng tất cả các cặp phạm trù.</p>
+            <p style="font-size: 20px; color: #2980b9;">Tổng điểm: ${score}/60</p>
+            <p>Triết học không khô khan như bạn nghĩ phải không?</p>
+            <button class="btn" onclick="location.reload()">Chơi lại</button>
+        `;
+    }
+
+    // Xử lý khi nhấn Enter
+    document.getElementById("answerInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            checkAnswer();
+        }
+    });
+
+    // Bắt đầu game
+    loadQuestion();
+
+</script>
+
+</body>
+</html>
